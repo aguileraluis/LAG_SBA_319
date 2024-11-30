@@ -3,11 +3,20 @@ require("dotenv").config();
 const express = require("express"); 
 const expressLayouts = require("express-ejs-layouts"); 
 const connectDB = require('./server/config/db'); 
-// const session = require('express-session'); 
+const session = require('express-session'); 
 const passport = require('passport'); 
 const MongoStore = require('connect-mongo'); 
 const app = express(); 
 const port = process.env.PORT || 5000; 
+
+app.use(session({
+  secret: 'mongonode', 
+  resave: false,
+  savedUninitialized: true, 
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI
+  })
+}));
 
 app.use(passport.initialize()); 
 // app.use(passport.session()); 
@@ -28,8 +37,6 @@ app.use('/', require('./server/routes/dashboard'))
 app.get('*', function(req, res) {
   res.status(404).render('404')
 })
-
-
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}.`)
