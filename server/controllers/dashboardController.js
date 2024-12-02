@@ -70,7 +70,7 @@ exports.dashboardUpdateNote = async (req, res) => {
 
 exports.dashboardDeleteNote = async (req, res) => {
   try {
-    await Note.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
+    await Note.deleteOne({ _id: req.params.id }).where({ user: req.user._id });
     res.redirect("/dashboard");
   } catch (error) {
     console.log(error);
@@ -96,32 +96,36 @@ exports.dashboardAddNoteSubmit = async(req, res) => {
   }
 }
 
-exports.dashboardSearch= async(req, res) => {
+exports.dashboardSearch = async(req, res) => {
   try {
     res.render('dashboard/search', {
       searchResult: '', 
       layout: '../views/layout/dashboard'
     })
+  } catch (error) {
+    console.error(error); 
   }
 }
 
-exports.dashboardSearchSubmit = async (req, res) => {
+exports.dashboardSearchSubmit = async(req, res) => {
   try {
-    let searchTerm = req.body.searchTerm;
-    const searchNoSpecialChars = searchTerm.replace(/[^a-zA-Z0-9 ]/g, "");
+    let searchTerm = req.body.searchTerm; 
+    const searchNoSpecialChars = searchTerm.replace(/[^a-zA-Z0-9]/g, ""); 
 
     const searchResults = await Note.find({
       $or: [
-        { title: { $regex: new RegExp(searchNoSpecialChars, "i") } },
-        { body: { $regex: new RegExp(searchNoSpecialChars, "i") } },
-      ],
-    }).where({ user: req.user.id });
+        { title: { $regex: new RegExp(searchNoSpecialChars, 'i')}}, 
+        { body: { $regex: new RegExp(searchNoSpecialChars, 'i')}}, 
+      ]
+    }).where({ user: req.user.id }); 
 
-    res.render("/dashboard/search", {
+    res.render('dashboard/search', {
       searchResults,
-      layout: "../views/layouts/dashboard",
-    });
+      layout: '..views/layouts/'
+    })
   } catch (error) {
-    console.log(error);
+    console.error(error); 
   }
-};
+}
+
+
