@@ -68,7 +68,6 @@ exports.dashboardUpdateNote = async (req, res) => {
   }
 };
 
-
 exports.dashboardDeleteNote = async (req, res) => {
   try {
     await Note.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
@@ -86,24 +85,25 @@ exports.dashboardAddNote = async (req, res) => {
 };
 
 
-exports.dashboardAddNoteSubmit = async (req, res) => {
+exports.dashboardAddNoteSubmit = async(req, res) => {
   try {
-    req.body.user = req.user.id;
-    await Note.create(req.body);
-    res.redirect("/dashboard");
-  } catch (error) {
-    console.log(error);
-  }
-};
+    req.body.user = req.user.id
+    await Note.create(req.body)
+    res.redirect('/dashboard')
 
-exports.dashboardSearch = async (req, res) => {
+  } catch (error) {
+    console.error(error); 
+  }
+}
+
+exports.dashboardSearch= async(req, res) => {
   try {
-    res.render("dashboard/search", {
-      searchResults: "",
-      layout: "../views/layouts/dashboard",
-    });
-  } catch (error) {}
-};
+    res.render('dashboard/search', {
+      searchResult: '', 
+      layout: '../views/layout/dashboard'
+    })
+  }
+}
 
 exports.dashboardSearchSubmit = async (req, res) => {
   try {
@@ -117,7 +117,7 @@ exports.dashboardSearchSubmit = async (req, res) => {
       ],
     }).where({ user: req.user.id });
 
-    res.render("dashboard/search", {
+    res.render("/dashboard/search", {
       searchResults,
       layout: "../views/layouts/dashboard",
     });
