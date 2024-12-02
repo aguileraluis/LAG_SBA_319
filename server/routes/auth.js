@@ -9,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGlE_CALLBACK_URL,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async function (accessToken, refreshToken, profile, done) {
       const newUser = {
@@ -17,20 +17,19 @@ passport.use(
         displayName: profile.displayName,
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
-        image: profile.photos[0].value,
+        profileImage: profile.photos[0].value,
       };
 
       try {
-        let user = await User.findOne({googleId: profile.id});
-
+        let user = await User.findOne({ googleId: profile.id });
         if (user) {
-          done(null, user); 
+          done(null, user);
         } else {
           user = await User.create(newUser);
-          done(null, user); 
+          done(null, user);
         }
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     }
   )
@@ -49,18 +48,35 @@ router.get(
   })
 );
 
-router.get("/login-failure", (req, res) => {
-  res.send("Something went wrong...");
+router.get('/login-failure', (req, res) => {
+  res.send('Something went wrong...');
+});
+
+router.get('/logout', (req, res) => {
+  req.session.destroy(error => {
+    if(error) {
+      console.log(error);
+      res.send('Error loggin out');
+    } else {
+      res.redirect('/')
+    }
+  })
 });
 
 passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
 
-passport.deserializeUser(function (id, done) {
-  User.findById(id, function (err, user) {
-    done(err, user);
-  });
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
 });
+
+
+
 
 module.exports = router;
