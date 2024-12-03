@@ -1,8 +1,8 @@
 const Note = require("../models/Notes");
+const Comment = require("../models/Comment");
 const mongoose = require("mongoose");
 
 exports.dashboard = async (req, res) => {
-
   let perPage = 12;
   let page = req.query.page || 1;
 
@@ -20,41 +20,69 @@ exports.dashboard = async (req, res) => {
           title: { $substr: ["$title", 0, 30] },
           body: { $substr: ["$body", 0, 100] },
         },
-      }
-      ])
-    .skip(perPage * page - perPage)
-    .limit(perPage)
-    .exec(); 
+      },
+    ])
+      .skip(perPage * page - perPage)
+      .limit(perPage)
+      .exec();
 
     const count = await Note.count();
 
-    res.render('dashboard/index', {
+    res.render("dashboard/index", {
       userName: req.user.firstName,
       locals,
       notes,
       layout: "../views/layouts/dashboard",
       current: page,
-      pages: Math.ceil(count / perPage)
+      pages: Math.ceil(count / perPage),
     });
   } catch (error) {
     console.log(error);
   }
 };
 
-exports.dashboardViewNote = async(req, res) => {
-   const note = await Note.findById({ _id: req.params.id })
-   .where({ user: req.user.id }).lean(); 
+exports.dashboardViewNote = async (req, res) => {
+  try {
+    const note = await Note.findById({ _id: req.params.id })
+      .where({ user: req.user._id })
+      .lean();
 
-   if (note) {
-    res.render('dashboard/view-note', {
-      noteID: req.params.id, 
-      note, 
-      layout: '../views/layouts/dashboard'
-    }); 
-   } else {
-    res.send('Something went wrong'); 
-   }
-}
+    let perPage = 12;
+    let page = req.query.page || 1;
+
+    const comments = await Comment.aggregate([
+      { $sort: { updatedAt: -1 } },
+      { $match: { user: mongoose.Types.ObjectId(req.user._id) } },
+      {
+        $project: {
+          title: { $substr: ["$title", 0, 30] },
+          body: { $substr: ["$comment", 0, 100] },
+        },
+      },
+    ])
+      .skip(perPage * page - perPage)
+      .limit(perPage)
+      .exec();
+
+    const count = await Comment.count();
+
+    if (note) {
+      res.render("dashboard/view-note", {
+        noteID: req.params.id,
+        commentID: req.params.id,
+        note,
+        comments,
+        current: page,
+        pages: Math.ceil(count / perPage),
+        layout: "../views/layouts/dashboard",
+      });
+    } else {
+      res.send("Something went wrong");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 exports.dashboardUpdateNote = async (req, res) => {
   try {
@@ -77,55 +105,51 @@ exports.dashboardDeleteNote = async (req, res) => {
   }
 };
 
-
 exports.dashboardAddNote = async (req, res) => {
   res.render("dashboard/add", {
     layout: "../views/layouts/dashboard",
   });
 };
 
-
-exports.dashboardAddNoteSubmit = async(req, res) => {
+exports.dashboardAddNoteSubmit = async (req, res) => {
   try {
-    req.body.user = req.user.id
-    await Note.create(req.body)
-    res.redirect('/dashboard')
-
+    req.body.user = req.user.id;
+    await Note.create(req.body);
+    res.redirect("/dashboard");
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
-}
+};
 
-exports.dashboardSearch = async(req, res) => {
+exports.dashboardSearch = async (req, res) => {
   try {
-    res.render('dashboard/search', {
-      searchResult: '', 
-      layout: '../views/layout/dashboard'
-    })
+    res.render("dashboard/search", {
+      searchResults: "",
+      layout: "../views/layouts/dashboard",
+    });
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
-}
+};
 
-exports.dashboardSearchSubmit = async(req, res) => {
+exports.dashboardSearchSubmit = async (req, res) => {
   try {
-    let searchTerm = req.body.searchTerm; 
-    const searchNoSpecialChars = searchTerm.replace(/[^a-zA-Z0-9]/g, ""); 
+    let searchTerm = req.body.searchTerm;
+    const searchNoSpecialChars = searchTerm.replace(/[^a-zA-Z0-9]/g, "");
 
     const searchResults = await Note.find({
       $or: [
-        { title: { $regex: new RegExp(searchNoSpecialChars, 'i')}}, 
-        { body: { $regex: new RegExp(searchNoSpecialChars, 'i')}}, 
-      ]
-    }).where({ user: req.user.id }); 
+        { title: { $regex: new RegExp(searchNoSpecialChars, "i") } },
+        { body: { $regex: new RegExp(searchNoSpecialChars, "i") } },
+      ],
+    }).where({ user: req.user.id });
 
-    res.render('dashboard/search', {
+    res.render("dashboard/search", {
       searchResults,
-      layout: '..views/layouts/'
-    })
+      layout: "../views/layouts/dashboard",
+    });
   } catch (error) {
-    console.error(error); 
+    console.error(error);
   }
-}
-
+};
 

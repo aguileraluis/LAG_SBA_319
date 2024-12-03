@@ -38,6 +38,7 @@ app.set('view engine', 'ejs');
 app.use('/', require('./server/routes/auth'));
 app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/dashboard'));
+app.use('/', require('./server/routes/comments'))
 
 app.get('*', function(req, res) {
   res.status(404).render('404');
