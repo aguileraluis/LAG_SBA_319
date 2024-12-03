@@ -42,17 +42,20 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.dashboardViewNote = async (req, res) => {
+
   try {
     const note = await Note.findById({ _id: req.params.id })
       .where({ user: req.user._id })
       .lean();
+
+    let thisNOTE = req.params.id;
 
     let perPage = 12;
     let page = req.query.page || 1;
 
     const comments = await Comment.aggregate([
       { $sort: { updatedAt: -1 } },
-      { $match: { user: mongoose.Types.ObjectId(req.user._id) } },
+      { $match: { user: mongoose.Types.ObjectId(thisNOTE) } },
       {
         $project: {
           title: { $substr: ["$title", 0, 30] },
