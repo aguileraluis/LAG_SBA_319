@@ -8,7 +8,7 @@ exports.dashboard = async (req, res) => {
 
   const locals = {
     title: "Dashboard",
-    description: "Free NodeJS Notes App.",
+    description: "Thoughts Node JS Application.",
   };
 
   try {
@@ -65,11 +65,12 @@ exports.dashboardViewNote = async (req, res) => {
       .exec();
 
     const count = await Comment.count();
+    console.log(note)
 
     if (note) {
       res.render("dashboard/view-note", {
         noteID: req.params.id,
-        commentID: req.params.id,
+        commentID: note._id,
         note,
         comments,
         current: page,

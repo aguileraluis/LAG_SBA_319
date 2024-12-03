@@ -88,14 +88,29 @@ exports.dashboardDeleteComment = async (req, res) => {
 };
 
 exports.dashboardAddComment = async (req, res) => {
-  res.render("dashboard/addComment", {
-    layout: "../views/layouts/dashboard",
-  });
+  try {
+    const note = await Note.findById({ _id: req.params.id })
+      .where({ user: req.user._id })
+      .lean();
+
+      if (note) {
+        res.render("dashboard/addComment", {
+          noteID: req.params.id,
+          commentID: note._id,
+          note,
+          layout: "../views/layouts/dashboard",
+        });
+      } else {
+        res.send("Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+    }
 };
 
 exports.dashboardAddCommentSubmit = async (req, res) => {
   try {
-    req.body.user = req.user.id;
+    req.body.user = req.user.id
     await Comment.create(req.body);
     res.redirect(`/dashboard`);
   } catch (error) {
