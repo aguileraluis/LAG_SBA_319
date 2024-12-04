@@ -17,8 +17,6 @@ Thoughts allows you to create an account, post thoughts and comment notes on tho
   - I am able to update a comment on a note/thought.
   - I am able to delete a comment from a note/thought. 
   - I am able to search through my notes/thoughts and retrieve a list of my keyword. 
-  - I am able to logout from my account.
-
 
 ## Getting Started
 
