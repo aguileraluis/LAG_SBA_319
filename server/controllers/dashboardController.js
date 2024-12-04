@@ -125,6 +125,16 @@ exports.dashboardAddNoteSubmit = async (req, res) => {
   }
 };
 
+exports.dashboardAddNoteValidationSubmit = async (req, res) => {
+  try {
+    req.body.user = req.body.id;
+    await Note.create(req.body);
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 exports.dashboardSearch = async (req, res) => {
   try {
     res.render("dashboard/search", {
