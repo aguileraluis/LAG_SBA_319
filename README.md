@@ -30,6 +30,10 @@ After this you will run two commands:
 
 * running npm install will install all of the dependencies in the package.json file
 
+## Sources
+- https://www.youtube.com/watch?v=BDo1lgaZuII
+- The inspiration for this application came from an online tutorial where I learned how to create routes and connect them to the data that is being posted to and being received from MongoDB. I learned how to connect my front end using EJS. I further applied what I learned in the video by implementing the comments functionalities to be able to create, update, view, and delete all comments being pulled from the database. I also learned how to use passport and google to authenticate users logging in with their Google email accounts. In addition, I learned how to properly structure my folders using view templates, specifically with EJS. My controllers and routes working together to render and redirect the user is my biggest take away. I was not able to do those things strictly on my own. This project and tutorial were very helpful to my growth. 
+
 ## Reminders 
 
 * This is the route that is accessible without having to be loggedIn that you can run to check that the validator of the Schema is working
